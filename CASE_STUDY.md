@@ -1,65 +1,104 @@
-# Teaching a judge what "good" means: calibrating virtual judges for AI listing highlights
+# Calibrating virtual judges for AI listing highlights
 
-*Content design × LLM evaluation · independent project*
+*Content design × LLM-as-a-judge · independent case study by Jen Kelleman*
 
-> **Status: in progress.** The evaluation stack, content principles, labeling guide, and perturbation suite are built and tested. Blind human labeling is underway. Results will be added from real labeled runs only; this page doesn't report any number a run hasn't produced.
+> [!NOTE]
+> **Independent portfolio project.** It isn't affiliated with or endorsed by Airbnb. All homes are invented. It's modeled on Airbnb's [Fall 2026 AI listing descriptions](https://news.airbnb.com/en-au/airbnb-2026-september-update) and on the approach in Airbnb Engineering's [Eval-driven development](https://airbnb.tech/ai-ml/eval-driven-development-lessons-from-evaluating-genai-at-scale/).
 
-## The problem
+## At a glance
 
-Travel marketplaces now put model-written highlights under each home in search results, one or two sentences a guest skims while comparing dozens of places. When a highlight is wrong, a guest books on a false promise: "steps from the beach" for a 20-minute walk, "private pool" for a shared one. When it's generic ("a stunning hidden gem"), it wastes the one line the guest gives it.
+| | |
+|---|---|
+| **Surface** | AI-written listing highlights: the one or two sentences a guest reads under a stay in search results |
+| **Question** | How do you turn a content designer's standards into virtual judges (VJs) that agree with careful human reviewers, and prove it? |
+| **Approach** | Three layers: programmatic checks, then one VJ per dimension, then blind human labels to calibrate against |
+| **Scale** | 30 invented stays · 60 candidate highlights · 207 planted defects · 3 VJs · 20 automated tests |
+| **Status** | Stack built and tested. Human labeling is underway, and results will come from labeled runs only |
 
-Nobody can read every highlight, so quality depends on automated judges. A judge that hasn't been calibrated is worse than none. It produces confident numbers that don't track what guests experience.
+## Why it matters to guests
 
-**My question:** how do you turn a content designer's standards into judges that agree with careful human reviewers, and how do you prove it?
+A highlight is a promise. If it's wrong, a guest books on something that isn't true. If it's generic, it wastes the one line they read.
 
-## What I built
+| What the data says | What a model wrote | What the guest experiences |
+|---|---|---|
+| Beach is a 4-minute walk on a public path | "An **oceanfront** five-bedroom…" | Expected to step onto the sand |
+| Plunge pool is **shared** with the host's house | "…with **its own** saltwater plunge pool" | Finds the host's family in the pool |
+| Pool is **not heated** | "…a **heated** saltwater pool…" | A cold swim in a desert winter |
+| Old Port is an **18-minute** walk | "…**a short walk** from the Old Port" | A longer walk than planned, every day |
+| 1950s homestead cabin with a cowboy tub and a telescope | "**Escape to your own desert oasis!**" | Learns nothing about the stay |
 
-A three-layer evaluation stack over 30 invented homes and 60 candidate highlights, written to cover the failures that matter. (Repo: this one.)
+Nobody can read every highlight, so quality depends on automated judges. **A judge that hasn't been calibrated is worse than none**, because it gives confident numbers that don't match what guests experience.
 
-1. **Content principles → rules → enforcement.** I wrote seven principles for highlights, then mapped each one to a rule and to the cheapest layer that can enforce it reliably ([content_principles.md](docs/content_principles.md)). Counting goes to code, judgment goes to a judge, and definitions go to humans.
-2. **One judge per dimension.** Faithfulness, salience, and voice each get a binary judge with typed errors and worked examples drawn from homes outside the test set.
-3. **Blind human labels.** These include inter-rater agreement measured before any judge is trusted.
-4. **A perturbation suite** that injects known defects into known-good highlights. That gives ground truth by construction, not opinion.
+## How the stack works
+
+```mermaid
+flowchart LR
+    A[Highlight + stay data] --> B[Layer 1<br/>Programmatic checks]
+    B --> C[Layer 2<br/>Virtual judges]
+    C --> D[Pass / fail per dimension<br/>+ typed errors]
+    E[Layer 3<br/>Blind human labels] -. calibrates .-> C
+    F[207 planted defects] -. stress-tests .-> C
+```
+
+| Layer | What it decides | Examples |
+|---|---|---|
+| **1 · Programmatic checks** | Anything countable or exactly matchable | Length, `!`, emoji, stock clichés, "oceanfront" with no water frontage |
+| **2 · Virtual judges** | Anything that needs reading comprehension, with one judge per dimension | **Faithfulness:** is every claim true? **Salience:** does it name what makes this stay different? **Voice:** is it specific, plain, and calm? |
+| **3 · Human evaluation** | The answer key, and the final call on what "good" means | Blind labels, inter-rater agreement, disagreement review |
+
+## How it follows Airbnb's rules for virtual judges
+
+Airbnb's eval post lists rules for building LLM evaluators. Here's how each one shows up in this stack:
+
+| Airbnb's guidance | In this stack |
+|---|---|
+| One evaluator per dimension, no "God evaluators" | Three single-purpose VJs replace a four-dimension rubric ([why](docs/rubric_v1_to_v2.md)) |
+| Use a different judge than the generator | The CLI warns if the judge and generator come from the same model family |
+| Few-shot examples, including bad ones | Every VJ has worked pass and fail examples, all from stays outside the golden set |
+| Explicit output schema | Each VJ returns strict JSON with typed errors. Malformed replies are recorded, never scored |
+| Clear, binary scoring | Pass/fail per dimension. Faithfulness is scored one claim at a time in code |
+| Calibrate before trusting at scale | Inter-rater α first, then κ with confidence intervals and fail recall per VJ |
+| Start with 50–100 rows, including failures | 60 highlights, about half written to fail in a specific way |
 
 ## Key decisions
 
-**I started from a typical rubric and took it apart.** The first version (`v1`) was one judge scoring four overlapping dimensions on 1–3 scales. Clichés were penalized twice, "missing amenities" counted as hallucination, and the model was asked to count characters. [rubric_v1_to_v2.md](docs/rubric_v1_to_v2.md) walks through each failure.
+| Decision | Why | Guest impact |
+|---|---|---|
+| **Distance gets a defined vocabulary** | "Steps from" and "a short walk" had no shared meaning | "Steps from" means 2 minutes or less on foot, and "a short walk" means 10 or less |
+| **Faithfulness is scored claim by claim** | A holistic judge can "round up" a summary that's mostly true | One false detail always fails the highlight |
+| **Salience gets a reference list** | "Most compelling features" turns into the judge's own taste | Highlights lead with the A-frame, not the Wi-Fi |
+| **Honest negatives are protected** | Judges tend to read "no elevator" as a flaw | "It's a third-floor walk-up" passes, and the wrong guest doesn't book |
+| **Counting moves to code** | LLMs miscount characters, and listed phrases are exact matches | Format rules are enforced every time, at no cost |
+| **Context words move from regex to judge** | The first run flagged "an apple orchard on the **property**," where the word means land | Fewer false alarms on good copy |
 
-**Distance became a defined vocabulary.** "Steps from" and "a short walk" are the promises guests remember. I gave them hard limits (2 and 10 minutes on foot) and put the table in both the guidelines and the judge prompt. Now raters and the judge are applying the same definition.
-
-**Faithfulness is scored claim by claim, in code.** The judge lists each claim with a verdict and its evidence. Code fails the highlight if any claim is unsupported. A holistic judge can't "round up" a summary that's mostly true.
-
-**Salience gets a reference, not a vibe.** "Surfaces the most compelling features" becomes "names at least two items from this home's standout list and doesn't lead with Wi-Fi."
-
-**Honest negatives are protected.** "It's a third-floor walk-up" is good guest-facing writing. Judges tend to read negatives as flaws, so the rule is stated in the prompt, the examples, and the labeling guide.
-
-**The first code run taught me something.** The internal-terms check flagged "an apple orchard on the property," where *property* means land. Context-dependent words moved from regex to the voice judge, and a regression test locks the change in ([decision log](docs/decisions.md)).
+Full list: [decision log](docs/decisions.md) · Guidelines: [content principles](docs/content_principles.md)
 
 ## Where it stands
 
-**Done**
-- 30 invented homes and 60 candidate highlights, each written to probe a specific failure: distance compression, shared spaces called private, unheated pools called heated, commodity checklists, puffery, and honest negatives that should pass.
-- Seven content principles, each mapped to a rule and an enforcement layer.
-- Layer 1 checks, three single-purpose judges, a pairwise judge that runs in both orders, and the v1 baseline kept for comparison.
-- A perturbation suite: 207 cases across eight defect types, plus unchanged controls to measure false alarms.
-- Metrics code for agreement, κ with bootstrap intervals, fail recall, Krippendorff's α, length bias, and test-retest consistency, with 20 offline tests.
-- A blind labeling tool that shuffles items per rater and hides the author's notes.
+**Built**
+- [x] 30 stays and 60 highlights, each probing a specific failure or an honest negative that should pass
+- [x] Seven content principles, each mapped to a rule and an enforcement layer
+- [x] Layer 1 checks, three VJs, a pairwise VJ that runs in both orders, and a v1 baseline for comparison
+- [x] 207 planted defects across eight types, plus untouched controls to measure false alarms
+- [x] Metrics code (agreement, Cohen's κ with bootstrap intervals, fail recall, Krippendorff's α, length bias, test-retest) and 20 offline tests
+- [x] A blind labeling tool that shuffles items per rater and hides the author's notes
 
 **Next**
-1. Finish blind labeling, ideally with a second rater, and report inter-rater α as the ceiling.
-2. Run v1 and v2 judges against those labels and report agreement, κ, and fail recall for each dimension.
-3. Report perturbation catch rates and false alarms on controls.
-4. Read every disagreement, revise one rule, rerun, and report the before-and-after.
+- [ ] Finish blind labeling, ideally with a second rater, and report inter-rater α as the ceiling
+- [ ] Report v1 vs. v2 agreement, κ, and fail recall for each dimension
+- [ ] Report catch rates for planted defects and false alarms on controls
+- [ ] Review every disagreement, revise one rule, rerun, and report the before-and-after
 
-**What I'm watching for.** I expect the borderline distance cases to split raters before they split the judge. L05-b, "a short walk" for an 18-minute walk, is the test of whether the distance table matches how people read. I also expect the voice judge to flag honest negatives unless the examples protect them, which is why the rule appears in the prompt, the examples, and the labeling guide.
+> [!TIP]
+> **What I'm watching for:** borderline distance cases should split raters before they split the judge. "A short walk" for an 18-minute walk tests whether the distance table matches how people actually read.
 
-## What I'd do in production
+## In production
 
-- Sample live highlights daily, run Layer 1 and the judges, and route flagged items to a weekly review. Every new failure pattern becomes a new rule, example, or perturbation.
-- Recalibrate whenever the generator model or prompt changes, and gate releases on fail recall for faithfulness, not on average scores.
-- Derive the standout list from guest behavior (what people filter on and click) instead of structured fields.
-- Grow the golden set with real generator outputs and adversarial cases, keeping the few-shot examples strictly separate from it.
+- **Monitor:** sample live highlights daily, run both layers, and route flagged items to a weekly review. Each new failure becomes a rule, an example, or a planted defect.
+- **Gate releases:** recalibrate whenever the model or prompt changes, and gate on faithfulness fail recall, not average scores.
+- **Learn from guests:** derive each stay's standout list from what guests filter on and click.
+- **Grow the golden set:** add real model outputs and adversarial cases, and keep the few-shot examples separate from it.
 
 ## Limitations
 
-60 items give wide confidence intervals; the report shows them rather than hiding them. The seed highlights are hand-written to cover failure modes, so they're harder than a typical model's output distribution. `python -m evals generate` adds real model outputs to close that gap.
+60 items give wide confidence intervals, and the report shows them rather than hiding them. The hand-written highlights are harder than typical model output; `python -m evals generate` adds real outputs to close that gap.
