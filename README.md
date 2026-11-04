@@ -1,10 +1,10 @@
-# listing-highlight-evals
+# Airbnb LLM-as-a-Judge Listing Evals
 
 An evaluation stack for **AI-written listing highlights**: the one- or two-sentence descriptions a model writes under each home in a travel marketplace's search results.
 
 The repo shows the full loop for making an LLM-as-judge trustworthy. Content principles become evaluable rules, rules go to the right layer (code, judge, or human), the judges are calibrated against blind human labels, and the judges themselves are stress-tested with injected defects.
 
-> All 30 homes are invented. Cities and landmarks are real places used for realism; no data comes from any booking platform.
+> **Independent portfolio project.** Not affiliated with or endorsed by Airbnb. All 30 homes are invented; cities and landmarks are real places used for realism, and no data comes from Airbnb or any other booking platform.
 
 **Start with [CASE_STUDY.md](CASE_STUDY.md)** for the story, the decisions, and where the project stands.
 
