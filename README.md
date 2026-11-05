@@ -1,6 +1,8 @@
 # Airbnb LLM-as-a-Judge Listing Evals
 
-An evaluation stack for **AI-written listing highlights**: the one- or two-sentence descriptions a model writes under each home in a travel marketplace's search results.
+**"Steps from the beach" is an 18-minute walk. "Private pool" is shared. Who catches that before a guest books?**
+
+This repo is a content designer's answer: an LLM-as-a-judge stack for Airbnb-style AI listing highlights. It turns style principles into enforceable rules, grades every claim with three single-purpose virtual judges, plants 207 known defects to see what slips through, and checks the judges against blind human labels.
 
 The repo shows the full loop for making an LLM-as-judge trustworthy. Content principles become evaluable rules, rules go to the right layer (code, judge, or human), the judges are calibrated against blind human labels, and the judges themselves are stress-tested with injected defects.
 
