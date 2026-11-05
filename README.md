@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/banner.png" alt="Listing highlights guests can trust: an LLM-as-a-judge stack for Airbnb-style AI listing highlights. A fictional listing card shows a highlight flagged by the faithfulness judge for calling an 8-minute walk 'steps from' the cafes." width="100%"></p>
+
 # Airbnb LLM-as-a-Judge Listing Evals
 
 **"Steps from the beach" is an 18-minute walk. "Private pool" is shared. Who catches that before a guest books?**

@@ -1,0 +1,73 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  :root { --coral:#FF385C; --coral-deep:#E00B41; --ink:#222222; --gray:#6A6A6A; --line:#DDDDDD; --soft:#F7F7F7; --green:#008A05; }
+  * { box-sizing:border-box; margin:0; }
+  body { width:1280px; height:420px; font-family:"Inter", sans-serif; color:var(--ink); background:#fff; overflow:hidden; }
+  .wrap { position:relative; width:100%; height:100%; display:grid; grid-template-columns: 1fr 470px; gap:48px; padding:52px 64px; align-items:center;
+          background: radial-gradient(900px 420px at 100% 0%, #FFF0F3 0%, #fff 60%); }
+  .wrap::after { content:""; position:absolute; left:0; right:0; bottom:0; height:6px; background:linear-gradient(90deg, var(--coral), #BD1E59 55%, #92174D); }
+  .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:15px; font-weight:600; color:var(--coral-deep); letter-spacing:.02em; }
+  .eyebrow i { width:8px; height:8px; border-radius:50%; background:var(--coral); }
+  h1 { font-family:"Inter Display","Inter",sans-serif; font-weight:800; font-size:54px; line-height:1.02; letter-spacing:-0.035em; margin-top:16px; }
+  h1 span { color:var(--coral); }
+  .sub { margin-top:16px; font-size:19px; line-height:1.45; color:var(--gray); max-width:610px; }
+  .chips { display:flex; gap:10px; margin-top:26px; flex-wrap:wrap; }
+  .chip { border:1px solid var(--line); border-radius:999px; padding:9px 16px; font-size:15px; font-weight:600; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.04); }
+  .chip b { color:var(--coral); font-weight:800; }
+
+  .card { background:#fff; border-radius:20px; box-shadow:0 6px 28px rgba(0,0,0,.12), 0 1px 3px rgba(0,0,0,.06); overflow:hidden; transform:rotate(1.2deg); }
+  .photo { position:relative; height:150px; background:linear-gradient(180deg,#FFD8C2 0%, #FFB4A8 55%, #F28C8C 100%); }
+  .photo svg.scene { position:absolute; left:0; bottom:0; width:100%; height:100%; }
+  .heart { position:absolute; top:14px; right:16px; width:30px; height:30px; }
+  .badge { position:absolute; top:14px; left:16px; background:#fff; border-radius:999px; padding:6px 12px; font-size:13px; font-weight:700; box-shadow:0 1px 4px rgba(0,0,0,.15); }
+  .body { padding:16px 20px 18px; }
+  .row { display:flex; justify-content:space-between; font-size:16px; font-weight:700; }
+  .row span { font-weight:500; }
+  .hl { margin-top:6px; font-size:15px; line-height:1.4; color:var(--gray); }
+  .hl mark { background:#FFE3E8; color:var(--coral-deep); font-weight:600; border-radius:4px; padding:0 3px; }
+  .verdicts { display:flex; gap:8px; margin-top:12px; }
+  .v { flex:1; white-space:nowrap; border-radius:10px; padding:7px 8px; font-size:12.5px; font-weight:700; display:flex; align-items:center; gap:6px; justify-content:center; }
+  .v.fail { flex:1.7; background:#FFE3E8; color:var(--coral-deep); }
+  .v.pass { background:#E7F6E8; color:var(--green); }
+  .note { position:absolute; right:64px; bottom:20px; font-size:12px; color:#9a9a9a; }
+</style></head>
+<body>
+<div class="wrap">
+  <div>
+    <div class="eyebrow"><i></i>LLM-as-a-judge · content design</div>
+    <h1>Listing highlights<br>guests can <span>trust</span>.</h1>
+    <p class="sub">An LLM-as-a-judge stack for Airbnb-style AI listing highlights: style principles become rules, virtual judges grade every claim, and human labels keep the judges honest.</p>
+    <div class="chips">
+      <div class="chip"><b>3</b> virtual judges</div>
+      <div class="chip"><b>207</b> planted defects</div>
+      <div class="chip"><b>60</b> highlights, blind-labeled</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="photo">
+      <svg class="scene" viewBox="0 0 470 150" preserveAspectRatio="none">
+        <circle cx="370" cy="48" r="22" fill="#FFF3E6" opacity=".9"/>
+        <path d="M0 120 C 90 92, 170 104, 250 96 S 400 86, 470 100 L470 150 L0 150 Z" fill="#E2725B" opacity=".55"/>
+        <path d="M150 132 L215 40 L280 132 Z" fill="#7A2E3A"/>
+        <path d="M168 132 L215 64 L262 132 Z" fill="#FFE1C9"/>
+        <rect x="203" y="102" width="24" height="30" fill="#7A2E3A"/>
+        <path d="M0 132 C 120 122, 300 126, 470 128 L470 150 L0 150 Z" fill="#5C2230"/>
+      </svg>
+      <div class="badge">Guest favorite</div>
+      <svg class="heart" viewBox="0 0 32 32"><path d="M16 28 C 6 20 2 15 2 10 a7 7 0 0 1 14 -2 a7 7 0 0 1 14 2 c0 5 -4 10 -14 18z" fill="rgba(0,0,0,.35)" stroke="#fff" stroke-width="2.5"/></svg>
+    </div>
+    <div class="body">
+      <div class="row">Cabin in West Asheville <span>★ 4.92</span></div>
+      <p class="hl">1960s A-frame with knotty-pine walls and a wood-burning stove, <mark>steps from</mark> the cafes on Haywood Road.</p>
+      <div class="verdicts">
+        <div class="v fail">✕ Faithfulness: it's an 8-min walk</div>
+        <div class="v pass">✓ Salience</div>
+        <div class="v pass">✓ Voice</div>
+      </div>
+    </div>
+  </div>
+  <div class="note">Independent portfolio project · not affiliated with Airbnb · listing is fictional</div>
+</div>
+</body></html>
