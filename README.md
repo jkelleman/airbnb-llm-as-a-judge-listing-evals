@@ -2,6 +2,18 @@
 
 # Airbnb LLM-as-a-Judge Listing Evals
 
+<p align="center">
+  <a href="https://github.com/jkelleman/airbnb-llm-as-a-judge-listing-evals/actions/workflows/tests.yml"><img alt="Tests" src="https://github.com/jkelleman/airbnb-llm-as-a-judge-listing-evals/actions/workflows/tests.yml/badge.svg"></a>
+  <img alt="Python 3.10+" src="https://img.shields.io/badge/python-3.10%2B-222222?logo=python&logoColor=white">
+  <img alt="Dependencies: none" src="https://img.shields.io/badge/dependencies-none-222222">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-222222"></a>
+  <br>
+  <img alt="LLM-as-a-judge" src="https://img.shields.io/badge/LLM--as--a--judge-3%20virtual%20judges-FF385C">
+  <img alt="Planted defects" src="https://img.shields.io/badge/stress%20tests-207%20planted%20defects-FF385C">
+  <img alt="Human-calibrated" src="https://img.shields.io/badge/calibration-blind%20human%20labels-FF385C">
+  <a href="CASE_STUDY.md"><img alt="Status: labeling in progress" src="https://img.shields.io/badge/status-labeling%20in%20progress-FFB400"></a>
+</p>
+
 **"Steps from the beach" is an 18-minute walk. "Private pool" is shared. Who catches that before a guest books?**
 
 This repo is a content designer's answer: an LLM-as-a-judge stack for Airbnb-style AI listing highlights. It turns style principles into enforceable rules, grades every claim with three single-purpose virtual judges, plants 207 known defects to see what slips through, and checks the judges against blind human labels.
