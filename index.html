@@ -100,7 +100,7 @@ const sentences = (t) => t.trim().split(/(?<=[.!?])\s+(?=[A-Z0-9"'])/).filter(Bo
 function numbersIn(t) {
   const out = new Set();
   for (const m of t.matchAll(/\d+(?:\.\d+)?/g)) out.add(String(+m[0]));
-  for (const w of t.toLowerCase().match(/[a-z]+/g) || []) if (w in NUMW) out.add(String(NUMW[w]));
+  for (const w of t.toLowerCase().match(/[a-z]+/g) || []) if (Object.hasOwn(NUMW, w)) out.add(String(NUMW[w]));
   return out;
 }
 function check(t, home) {
@@ -142,7 +142,7 @@ function show(id) {
     return `<article class="card hl"><div class="row"><span class="mono muted">${c.candidate_id}</span></div><p class="say">${esc(c.text)}</p>${findingsHtml(check(c.text, h))}
       <div class="intent"><div class="who" style="margin-bottom:6px">What the author planted</div><div class="row">${dims}</div>${ai.notes ? `<p style="margin:8px 0 0">${esc(ai.notes)}</p>` : ""}</div></article>`;
   }).join("") + `<article class="card hl"><label for="mine" style="font-weight:600">Write your own highlight for this home</label>
-    <textarea id="mine" placeholder="One or two sentences. Name what only this home has."></textarea><div class="count" id="mineCount"></div><div id="mineOut"></div></article>`;
+    <textarea id="mine" aria-describedby="mineCount" placeholder="One or two sentences. Name what only this home has."></textarea><div class="count" id="mineCount"></div><div id="mineOut" role="status" aria-live="polite"></div></article>`;
   const ta = document.getElementById("mine");
   const run = () => { document.getElementById("mineCount").textContent = `${[...ta.value].length} / ${C.MAX} characters`; document.getElementById("mineOut").innerHTML = ta.value.trim() ? findingsHtml(check(ta.value, h)) : ""; };
   ta.addEventListener("input", run); run();
