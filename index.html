@@ -35,7 +35,7 @@ textarea { width: 100%; min-height: 96px; font: inherit; font-size: 17px; paddin
 <body>
 <header class="top"><div class="wrap">
   <a class="name" href="https://aiwithjen.com">Jen Kelleman</a>
-  <nav><a href="https://aiwithjen.com/code">Prototypes</a><a href="https://github.com/jkelleman/airbnb-llm-as-a-judge-listing-evals">Code on GitHub</a></nav>
+  <nav><a href="https://aiwithjen.com/code">Prototypes</a><a href="https://github.com/jkelleman/listing-highlight-evals">Code on GitHub</a></nav>
 </div></header>
 
 <main>
@@ -44,7 +44,7 @@ textarea { width: 100%; min-height: 96px; font: inherit; font-size: 17px; paddin
   <h1>Highlights guests <em>can trust.</em></h1>
   <p class="lede">“Steps from the beach” is an 18-minute walk. “Private pool” is shared. This LLM-as-a-judge stack turns content principles into rules, grades every claim with three single-purpose virtual judges and checks them against blind human labels. Pick a home below and run the code checks yourself.</p>
   <ul class="facts"><li><b>30</b> invented homes</li><li><b>60</b> highlights</li><li><b>3</b> virtual judges</li><li><b>207</b> planted defects</li></ul>
-  <div class="cta"><a class="btn primary" href="#try">Try the checks</a><a class="btn" href="https://github.com/jkelleman/airbnb-llm-as-a-judge-listing-evals/blob/main/CASE_STUDY.md">Read the case study</a><a class="btn" href="https://github.com/jkelleman/airbnb-llm-as-a-judge-listing-evals">View the code</a></div>
+  <div class="cta"><a class="btn primary" href="#try">Try the checks</a><a class="btn" href="https://github.com/jkelleman/listing-highlight-evals/blob/main/CASE_STUDY.md">Read the case study</a><a class="btn" href="https://github.com/jkelleman/listing-highlight-evals">View the code</a></div>
   <p class="note">Independent portfolio project, not affiliated with or endorsed by Airbnb. All homes are invented. Human labeling is underway, so this page shows the code checks and each highlight's planted defects. Judge results will be published from labeled runs only.</p>
 </div>
 
@@ -77,7 +77,7 @@ textarea { width: 100%; min-height: 96px; font: inherit; font-size: 17px; paddin
 <section class="block" id="decisions"><div class="wrap"><h2>Decisions</h2><div class="prose" data-md="docs/decisions.md"></div></div></section>
 </main>
 
-<footer><div class="wrap"><span>Built by <a href="https://aiwithjen.com">Jen Kelleman</a>, content designer for AI.</span><a href="https://github.com/jkelleman/airbnb-llm-as-a-judge-listing-evals">Source on GitHub</a></div></footer>
+<footer><div class="wrap"><span>Built by <a href="https://aiwithjen.com">Jen Kelleman</a>, content designer for AI.</span><a href="https://github.com/jkelleman/listing-highlight-evals">Source on GitHub</a></div></footer>
 
 <script type="module">
 import { marked } from "./assets/vendor/marked.esm.js";
@@ -150,7 +150,7 @@ function show(id) {
 pick.addEventListener("change", () => show(pick.value));
 pick.value = "L01"; show("L01");
 
-await Promise.all([...document.querySelectorAll("[data-md]")].map((el) => renderMd(el, marked, "airbnb-llm-as-a-judge-listing-evals")));
+await Promise.all([...document.querySelectorAll("[data-md]")].map((el) => renderMd(el, marked, "listing-highlight-evals")));
 trackTabs();
 </script>
 </body>

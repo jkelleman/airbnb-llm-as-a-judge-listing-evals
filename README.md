@@ -1,12 +1,12 @@
-<p align="center"><img src="assets/banner.png" alt="Listing highlights guests can trust: an LLM-as-a-judge stack for Airbnb-style AI listing highlights. A fictional listing card shows a highlight flagged by the faithfulness judge for calling an 8-minute walk 'steps from' the cafes." width="100%"></p>
+<p align="center"><img src="assets/banner.png" alt="Listing highlights guests can trust: an LLM-as-a-judge stack for AI-written stay highlights on a booking platform. A fictional listing card shows a highlight flagged by the faithfulness judge for calling an 8-minute walk 'steps from' the cafes." width="100%"></p>
 
-# Airbnb LLM-as-a-Judge Listing Evals
+# Listing Highlight Evals: LLM-as-a-Judge for AI-Written Stay Highlights
 
-**[Live demo](https://jkelleman.github.io/airbnb-llm-as-a-judge-listing-evals/)**: run the Layer 1 checks on all 30 homes, or write your own highlight.
+**[Live demo](https://jkelleman.github.io/listing-highlight-evals/)**: run the Layer 1 checks on all 30 homes, or write your own highlight.
 
 
 <p align="center">
-  <a href="https://github.com/jkelleman/airbnb-llm-as-a-judge-listing-evals/actions/workflows/tests.yml"><img alt="Tests" src="https://github.com/jkelleman/airbnb-llm-as-a-judge-listing-evals/actions/workflows/tests.yml/badge.svg"></a>
+  <a href="https://github.com/jkelleman/listing-highlight-evals/actions/workflows/tests.yml"><img alt="Tests" src="https://github.com/jkelleman/listing-highlight-evals/actions/workflows/tests.yml/badge.svg"></a>
   <img alt="Python 3.10+" src="https://img.shields.io/badge/python-3.10%2B-222222?logo=python&logoColor=white">
   <img alt="Dependencies: none" src="https://img.shields.io/badge/dependencies-none-222222">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-222222"></a>
@@ -19,7 +19,7 @@
 
 **"Steps from the beach" is an 18-minute walk. "Private pool" is shared. Who catches that before a guest books?**
 
-This repo is a content designer's answer: an LLM-as-a-judge stack for Airbnb-style AI listing highlights. It turns style principles into enforceable rules, grades every claim with three single-purpose virtual judges, plants 207 known defects to see what slips through, and checks the judges against blind human labels.
+This repo is a content designer's answer: an LLM-as-a-judge stack for AI-written stay highlights on a booking platform. It turns style principles into enforceable rules, grades every claim with three single-purpose virtual judges, plants 207 known defects to see what slips through, and checks the judges against blind human labels.
 
 The repo shows the full loop for making an LLM-as-judge trustworthy. Content principles become evaluable rules, rules go to the right layer (code, judge, or human), the judges are calibrated against blind human labels, and the judges themselves are stress-tested with injected defects.
 

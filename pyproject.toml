@@ -1,5 +1,5 @@
 [project]
-name = "airbnb-llm-as-a-judge-listing-evals"
+name = "listing-highlight-evals"
 version = "0.2.0"
 description = "Calibrated LLM-as-judge evaluation for AI-written listing highlights"
 requires-python = ">=3.10"
