@@ -81,7 +81,7 @@ textarea { width: 100%; min-height: 96px; font: inherit; font-size: 17px; paddin
 
 <script type="module">
 import { marked } from "./assets/vendor/marked.esm.js";
-import { trackTabs, text, esc } from "./assets/tabs.js";
+import { trackTabs, text, esc, renderMd } from "./assets/tabs.js";
 
 const jsonl = (s) => s.split("\n").filter((l) => l.trim()).map((l) => JSON.parse(l));
 const [listings, cands, cfgPy] = await Promise.all([
@@ -150,7 +150,7 @@ function show(id) {
 pick.addEventListener("change", () => show(pick.value));
 pick.value = "L01"; show("L01");
 
-await Promise.all([...document.querySelectorAll("[data-md]")].map(async (el) => { el.innerHTML = marked.parse(await text(el.dataset.md)); }));
+await Promise.all([...document.querySelectorAll("[data-md]")].map((el) => renderMd(el, marked, "airbnb-llm-as-a-judge-listing-evals")));
 trackTabs();
 </script>
 </body>
