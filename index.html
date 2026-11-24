@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Listing Highlight Evals · Jen Kelleman</title>
+<meta name="description" content="An LLM-as-a-judge stack for AI-written stay highlights: code checks, three single-purpose virtual judges and blind human labels. Try the code checks on 30 invented homes.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+.play { display: grid; gap: 20px; }
+@media (min-width: 960px) { .play { grid-template-columns: 360px 1fr; align-items: start; } .home { position: sticky; top: 76px; } }
+select { font: inherit; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--rule); background: var(--card); width: 100%; }
+.home h3 { font-family: var(--serif); font-weight: 400; font-size: 24px; margin: 14px 0 2px; }
+.home dl { margin: 12px 0 0; font-size: 14px; display: grid; grid-template-columns: 96px 1fr; gap: 6px 10px; }
+.home dt { color: var(--graphite); } .home dd { margin: 0; }
+.hl { display: flex; flex-direction: column; gap: 12px; }
+.hl .say { font-size: 19px; line-height: 1.5; margin: 0; }
+.hl .row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.findings { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.findings li::before { margin-right: 6px; font-weight: 700; }
+.findings .ok::before { content: "✓"; color: var(--ok); }
+.findings .soft::before { content: "!"; color: var(--warn); }
+.findings .hard::before { content: "✗"; color: var(--no); }
+.intent { background: var(--bg); border: 1px solid var(--rule); border-radius: 10px; padding: 10px 12px; font-size: 14px; }
+textarea { width: 100%; min-height: 96px; font: inherit; font-size: 17px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--rule); background: var(--card); resize: vertical; }
+.count { font-family: var(--mono); font-size: 12px; color: var(--graphite); }
+.layers { counter-reset: l; }
+.layers .card h3 { margin: 0; font-size: 17px; }
+.layers .card .n { font-family: var(--mono); font-size: 12px; color: var(--accent); letter-spacing: .08em; }
+.layers .card p { margin: 8px 0 0; color: var(--graphite); font-size: 15px; }
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="name" href="https://aiwithjen.com">Jen Kelleman</a>
+  <nav><a href="https://aiwithjen.com/code">Prototypes</a><a href="https://github.com/jkelleman/airbnb-llm-as-a-judge-listing-evals">Code on GitHub</a></nav>
+</div></header>
+
+<main>
+<div class="wrap hero">
+  <p class="label">Listing highlight evals</p>
+  <h1>Highlights guests <em>can trust.</em></h1>
+  <p class="lede">“Steps from the beach” is an 18-minute walk. “Private pool” is shared. This LLM-as-a-judge stack turns content principles into rules, grades every claim with three single-purpose virtual judges and checks them against blind human labels. Pick a home below and run the code checks yourself.</p>
+  <ul class="facts"><li><b>30</b> invented homes</li><li><b>60</b> highlights</li><li><b>3</b> virtual judges</li><li><b>207</b> planted defects</li></ul>
+  <div class="cta"><a class="btn primary" href="#try">Try the checks</a><a class="btn" href="https://github.com/jkelleman/airbnb-llm-as-a-judge-listing-evals/blob/main/CASE_STUDY.md">Read the case study</a><a class="btn" href="https://github.com/jkelleman/airbnb-llm-as-a-judge-listing-evals">View the code</a></div>
+  <p class="note">Independent portfolio project, not affiliated with or endorsed by Airbnb. All homes are invented. Human labeling is underway, so this page shows the code checks and each highlight's planted defects. Judge results will be published from labeled runs only.</p>
+</div>
+
+<nav class="tabs" aria-label="Sections"><div class="wrap">
+  <a href="#try">Try the checks</a><a href="#stack">The stack</a><a href="#principles">Content principles</a><a href="#rubric">Rubric v1 to v2</a><a href="#labeling">Labeling guide</a><a href="#decisions">Decisions</a>
+</div></nav>
+
+<section class="block" id="try"><div class="wrap">
+  <h2>Try the checks</h2>
+  <p class="sub">Layer 1 runs in your browser with the same rules as <span class="mono">evals/checks.py</span>: length, punctuation, emoji, internal terms, clichés, waterfront words and numbers that don't appear in the home's data.</p>
+  <div class="play">
+    <aside class="card home"><label class="mono muted" for="pick">Home</label><select id="pick"></select><div id="home"></div></aside>
+    <div class="hl" id="cands"></div>
+  </div>
+</div></section>
+
+<section class="block" id="stack"><div class="wrap">
+  <h2>The stack</h2>
+  <p class="sub">Each rule goes to the cheapest layer that can decide it the same way twice.</p>
+  <div class="grid g3 layers">
+    <article class="card"><span class="n">LAYER 1</span><h3>Code checks</h3><p>Anything countable or exactly matchable: length, punctuation, emoji, clichés, internal terms, waterfront words. Free, exact and never miscounts.</p></article>
+    <article class="card"><span class="n">LAYER 2</span><h3>Three virtual judges</h3><p>Faithfulness claim by claim, salience against the home's standouts, and voice against the principles. One dimension per judge, binary, with typed errors.</p></article>
+    <article class="card"><span class="n">LAYER 3</span><h3>Blind human labels</h3><p>Ground truth and the final call on what good means. Judges are calibrated against these labels, and rater agreement sets the ceiling no judge can beat.</p></article>
+  </div>
+</div></section>
+
+<section class="block" id="principles"><div class="wrap"><h2>Content principles</h2><div class="prose" data-md="docs/content_principles.md"></div></div></section>
+<section class="block" id="rubric"><div class="wrap"><h2>Rubric v1 to v2</h2><div class="prose" data-md="docs/rubric_v1_to_v2.md"></div></div></section>
+<section class="block" id="labeling"><div class="wrap"><h2>Labeling guide</h2><div class="prose" data-md="docs/labeling_guide.md"></div></div></section>
+<section class="block" id="decisions"><div class="wrap"><h2>Decisions</h2><div class="prose" data-md="docs/decisions.md"></div></div></section>
+</main>
+
+<footer><div class="wrap"><span>Built by <a href="https://aiwithjen.com">Jen Kelleman</a>, content designer for AI.</span><a href="https://github.com/jkelleman/airbnb-llm-as-a-judge-listing-evals">Source on GitHub</a></div></footer>
+
+<script type="module">
+import { marked } from "./assets/vendor/marked.esm.js";
+import { trackTabs, text, esc } from "./assets/tabs.js";
+
+const jsonl = (s) => s.split("\n").filter((l) => l.trim()).map((l) => JSON.parse(l));
+const [listings, cands, cfgPy] = await Promise.all([
+  text("data/listings.jsonl").then(jsonl), text("data/candidates.jsonl").then(jsonl), text("evals/config.py"),
+]);
+
+// The rules live in evals/config.py. Read them from there so the page and the checks never drift.
+const num = (name) => +cfgPy.match(new RegExp(`^${name} = (\\d+)`, "m"))[1];
+const list = (name) => [...cfgPy.match(new RegExp(`^${name} = \\[([\\s\\S]*?)\\]`, "m"))[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+const C = { MIN: num("MIN_CHARS"), MAX: num("MAX_CHARS"), SENT: num("MAX_SENTENCES"), INTERNAL: list("INTERNAL_TERMS"), CLICHES: list("CLICHES"), FRONTAGE: list("FRONTAGE_WORDS") };
+
+const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F000}-\u{1F2FF}\u{1F900}-\u{1F9FF}\u{FE0F}]/u;
+const NUMW = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, fifteen: 15, twenty: 20 };
+const reEsc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const sentences = (t) => t.trim().split(/(?<=[.!?])\s+(?=[A-Z0-9"'])/).filter(Boolean);
+function numbersIn(t) {
+  const out = new Set();
+  for (const m of t.matchAll(/\d+(?:\.\d+)?/g)) out.add(String(+m[0]));
+  for (const w of t.toLowerCase().match(/[a-z]+/g) || []) if (w in NUMW) out.add(String(NUMW[w]));
+  return out;
+}
+function check(t, home) {
+  const f = [], add = (kind, detail, sev = "hard", dim = "format") => f.push({ kind, detail, sev, dim });
+  const n = [...t].length;
+  if (n > C.MAX) add("too_long", `${n} characters, over ${C.MAX}`);
+  if (n < C.MIN) add("too_short", `${n} characters, under ${C.MIN}`);
+  if (sentences(t).length > C.SENT) add("too_many_sentences", `${sentences(t).length} sentences, over ${C.SENT}`);
+  if (/[!?]/.test(t)) add("bad_punctuation", "uses ! or ?");
+  if (!t.trimEnd().endsWith(".")) add("no_final_period", "must end with a period");
+  if (EMOJI.test(t)) add("emoji", "contains emoji");
+  if (t.includes("\n") || /^\s*[-*•]/.test(t) || t.includes('"')) add("formatting", "newline, bullet or quotation mark");
+  const low = t.toLowerCase();
+  for (const w of C.INTERNAL) if (new RegExp(`\\b${reEsc(w)}\\b`).test(low)) add("internal_term", `“${w}”`, "hard", "voice");
+  for (const w of C.CLICHES) if (new RegExp(`\\b${reEsc(w)}\\b`).test(low)) add("cliche", `“${w}”`, "hard", "voice");
+  if (home) {
+    if (!home.water_frontage) for (const w of C.FRONTAGE) if (low.includes(w)) add("unsupported_frontage", `“${w}” but the data has no water frontage`, "hard", "faithfulness");
+    const data = numbersIn(JSON.stringify(home));
+    const miss = [...numbersIn(t)].filter((x) => !data.has(x));
+    if (miss.length) add("ungrounded_number", `${miss.join(", ")} not found in the home's data`, "soft", "faithfulness");
+  }
+  return f;
+}
+const findingsHtml = (f) => `<ul class="findings">${f.length ? f.map((x) => `<li class="${x.sev}"><span class="mono">${x.kind}</span> · ${esc(x.detail)}${x.sev === "soft" ? " (flag for review)" : ""}</li>`).join("") : '<li class="ok">Layer 1: no issues. The judges decide the rest.</li>'}</ul>`;
+
+const pick = document.getElementById("pick");
+pick.innerHTML = listings.map((l) => `<option value="${l.listing_id}">${l.listing_id} · ${esc(l.home_type)}, ${esc(l.city)}</option>`).join("");
+const joinList = (a) => (a && a.length ? a.map(esc).join(", ") : "none");
+function show(id) {
+  const h = listings.find((l) => l.listing_id === id);
+  const dist = (h.distances || []).map((d) => `${esc(d.place)}: ${d.walk_min != null ? d.walk_min + " min walk" : d.drive_min + " min drive"} (${d.miles} mi)`).join("<br>");
+  document.getElementById("home").innerHTML = `<h3>${esc(h.home_type)} in ${esc(h.neighborhood)}</h3><p class="muted" style="margin:0">${esc(h.city)} · ${h.guests} guests · ${h.bedrooms} bedroom${h.bedrooms === 1 ? "" : "s"} · ${h.baths} bath${h.baths === 1 ? "" : "s"}</p>
+    <dl><dt>Design</dt><dd>${esc(h.design)}</dd><dt>Features</dt><dd>${joinList(h.features)}</dd><dt>Amenities</dt><dd>${joinList(h.amenities)}</dd><dt>Views</dt><dd>${joinList(h.views)}</dd>
+    <dt>On the water</dt><dd>${h.water_frontage ? "yes" : "no"}</dd><dt>Distances</dt><dd>${dist || "none"}</dd>${h.neighborhood_notes ? `<dt>Area</dt><dd>${esc(h.neighborhood_notes)}</dd>` : ""}${h.disclosures?.length ? `<dt>Disclosures</dt><dd>${joinList(h.disclosures)}</dd>` : ""}</dl>`;
+  const mine = cands.filter((c) => c.listing_id === id);
+  document.getElementById("cands").innerHTML = mine.map((c) => {
+    const ai = c.author_intent || {};
+    const dims = ["faithfulness", "salience", "voice"].map((d) => `<span class="tag ${ai[d] === 1 ? "ok" : ai[d] === 0 ? "no" : "na"}">${d} ${ai[d] === 1 ? "clean" : ai[d] === 0 ? "defect planted" : "–"}</span>`).join("");
+    return `<article class="card hl"><div class="row"><span class="mono muted">${c.candidate_id}</span></div><p class="say">${esc(c.text)}</p>${findingsHtml(check(c.text, h))}
+      <div class="intent"><div class="who" style="margin-bottom:6px">What the author planted</div><div class="row">${dims}</div>${ai.notes ? `<p style="margin:8px 0 0">${esc(ai.notes)}</p>` : ""}</div></article>`;
+  }).join("") + `<article class="card hl"><label for="mine" style="font-weight:600">Write your own highlight for this home</label>
+    <textarea id="mine" placeholder="One or two sentences. Name what only this home has."></textarea><div class="count" id="mineCount"></div><div id="mineOut"></div></article>`;
+  const ta = document.getElementById("mine");
+  const run = () => { document.getElementById("mineCount").textContent = `${[...ta.value].length} / ${C.MAX} characters`; document.getElementById("mineOut").innerHTML = ta.value.trim() ? findingsHtml(check(ta.value, h)) : ""; };
+  ta.addEventListener("input", run); run();
+}
+pick.addEventListener("change", () => show(pick.value));
+pick.value = "L01"; show("L01");
+
+await Promise.all([...document.querySelectorAll("[data-md]")].map(async (el) => { el.innerHTML = marked.parse(await text(el.dataset.md)); }));
+trackTabs();
+</script>
+</body>
+</html>
